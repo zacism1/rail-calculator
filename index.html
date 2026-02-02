@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rail Calculators</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="logo">Rail Calculators</h1>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-target="materials">Materials</button>
+      <button class="tab" data-href="Ballastclaculator.html">Ballast Calculator</button>
+      <button class="tab" data-target="curve">Curve Elevation</button>
+      <button class="tab" data-target="destress">Destress</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="ballast" class="panel" role="tabpanel">
+      <h2>Ballast Calculator</h2>
+      <div class="card">
+        <label>Length (m)
+          <input type="number" id="b-length" min="0" step="0.01" value="10" />
+        </label>
+        <label>Width (m)
+          <input type="number" id="b-width" min="0" step="0.01" value="1" />
+        </label>
+        <label>Depth (m)
+          <input type="number" id="b-depth" min="0" step="0.01" value="0.2" />
+        </label>
+        <label>Density (kg/m³)
+          <input type="number" id="b-density" min="0" step="1" value="1600" />
+        </label>
+        <div class="actions">
+          <button id="b-calc">Calculate</button>
+          <button id="b-clear" class="muted">Clear</button>
+        </div>
+        <div id="b-output" class="output"></div>
+      </div>
+    </section>
+
+    <section id="materials" class="panel active" role="tabpanel">
+      <h2>Materials Estimator</h2>
+      <div class="card">
+        <label>Area (m²)
+          <input type="number" id="m-area" min="0" step="0.1" value="50" />
+        </label>
+        <label>Coverage per unit (m²)
+          <input type="number" id="m-coverage" min="0.01" step="0.1" value="2.5" />
+        </label>
+        <label>Unit price
+          <input type="number" id="m-price" min="0" step="0.01" value="12" />
+        </label>
+        <div class="actions">
+          <button id="m-calc">Estimate</button>
+        </div>
+        <div id="m-output" class="output"></div>
+      </div>
+    </section>
+
+    <section id="curve" class="panel" role="tabpanel">
+      <h2>Curve Elevation</h2>
+      <div class="card">
+        <p>Curve elevation calculator coming soon.</p>
+      </div>
+    </section>
+
+    <section id="destress" class="panel" role="tabpanel">
+      <h2>Destress</h2>
+      <div class="card">
+        <p>Destress calculator coming soon.</p>
+      </div>
+    </section>
+
+    <section id="fasteners" class="panel" role="tabpanel">
+      <h2>Fasteners Calculator</h2>
+      <div class="card">
+        <label>Sleepers count
+          <input type="number" id="f-sleepers" min="0" step="1" value="100" />
+        </label>
+        <label>Bolts per sleeper
+          <input type="number" id="f-bolts" min="0" step="1" value="4" />
+        </label>
+        <label>Cost per bolt
+          <input type="number" id="f-cost" min="0" step="0.01" value="0.15" />
+        </label>
+        <div class="actions">
+          <button id="f-calc">Calculate</button>
+        </div>
+        <div id="f-output" class="output"></div>
+      </div>
+    </section>
+
+    <section id="summary" class="panel" role="tabpanel">
+      <h2>Summary</h2>
+      <div class="card">
+        <div id="s-content">No calculations yet. Use the calculators above.</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    // Redirect to materials.html as default page
+    if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+      window.location.href = 'materials.html';
+    }
+  </script>
+</body>
+</html>

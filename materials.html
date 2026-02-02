@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rail Materials Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .info-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: blue;
+            cursor: pointer;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .calc-btn, .copy-btn, .spacing-btn {
+            background-color: blue;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .results {
+            display: none;
+        }
+        .result-item {
+            margin-bottom: 10px;
+        }
+        .icon {
+            width: 25px;
+            height: 25px;
+            margin-left: 10px;
+        }
+        .bottom-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover {
+            color: black;
+            cursor: pointer;
+        }
+        .decline-btn {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .agree-btn {
+            background-color: green;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="info-btn" onclick="showInfo()">ℹ️</button>
+        </div>
+        <div class="input-row">
+            <input type="text" id="distance" placeholder="Distance of track (in meters)">
+            <button class="calc-btn" onclick="calculate()" id="calcBtn">Calculate</button>
+        </div>
+        <div class="results" id="results">
+            <div class="result-item" id="sleepers"></div>
+            <div class="result-item" id="packs16"></div>
+            <div class="result-item" id="packs8"></div>
+            <div class="result-item" id="packs6"></div>
+            <div class="result-item" id="clips"></div>
+            <div class="result-item" id="insulators"></div>
+            <div class="result-item" id="insulators-details"></div>
+            <div class="result-item" id="pads"></div>
+            <div class="result-item" id="rail-lengths"></div>
+            <div class="result-item" id="rail-weight-68"></div>
+            <div class="result-item" id="rail-weight-60"></div>
+            <div class="result-item" id="rail-weight-50"></div>
+        </div>
+        <div class="bottom-row">
+            <button class="spacing-btn" onclick="cycleSpacing()">600mm</button>
+            <button class="copy-btn" onclick="copyResults()" id="copyBtn">Copy</button>
+        </div>
+    </div>
+
+    <!--
+    --> <!-- Info Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('infoModal')">&times;</span>
+            <h2>Info</h2>
+            <p>Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700. Scrap steel weight does not account for head loss and assumes both legs of the track are being replaced.</p>
+        </div>
+    </div>
+
+    <script>
+        const sleeperSpacingOptions = [0.6, 0.65, 0.670, 0.675, 0.7];
+        let selectedSleeperSpacingIndex = 0;
+        let resultsCopied = false;
+
+        function showInfo() {
+            document.getElementById('infoModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function cycleSpacing() {
+            selectedSleeperSpacingIndex = (selectedSleeperSpacingIndex + 1) % sleeperSpacingOptions.length;
+            const btn = document.querySelector('.spacing-btn');
+            btn.innerText = `${Math.round(sleeperSpacingOptions[selectedSleeperSpacingIndex] * 1000)}mm`;
+            if (document.getElementById('distance').value) {
+                calculate();
+            }
+        }
+
+        function calculate() {
+            const distanceStr = document.getElementById('distance').value;
+            const distance = parseFloat(distanceStr);
+            if (isNaN(distance)) return;
+
+            const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
+            const numberOfSleepers = distance / spacing;
+
+            // Sleepers and packs
+            const sleeperPacks16 = Math.ceil(numberOfSleepers / 16 * 10) / 10;
+            const sleeperPacks8 = Math.ceil(numberOfSleepers / 8 * 10) / 10;
+            const sleeperPacks6 = Math.ceil(numberOfSleepers / 6 * 10) / 10;
+
+            // Clips
+            const clips = numberOfSleepers * 4;
+            const drums = clips / 600;
+            const pallets = clips / 2400;
+
+            // Insulators
+            const insulators = numberOfSleepers * 4;
+            const hdBags = insulators / 80;
+            const stdBags = insulators / 300;
+            const hdPallets = insulators / 6000;
+            const stdPallets = insulators / 9000;
+
+            // Pads
+            const pads = numberOfSleepers * 2;
+            const bagsOfPads = pads / 20;
+            const palletsOfPads = pads / 1600;
+            const packs16 = pads / 16;
+            const palletsOf16 = pads / 1440;
+
+            // Rail lengths
+            const railLengths = {
+                25: distance / 25,
+                27: distance / 27,
+                100: distance / 100,
+                325: distance / 325,
+                400: distance / 400
+            };
+
+            // Rail weights
+            let railWeight68 = (distance * 2 * 68) / 1000;
+            let railWeight60 = (distance * 2 * 60) / 1000;
+            let railWeight50 = (distance * 2 * 50) / 1000;
+            railWeight68 = Math.round(railWeight68 * 10) / 10;
+            railWeight60 = Math.round(railWeight60 * 10) / 10;
+            railWeight50 = Math.round(railWeight50 * 10) / 10;
+
+            // Display results
+            document.getElementById('sleepers').innerText = `*Sleepers (concrete): ${numberOfSleepers.toFixed(2)}`;
+            document.getElementById('packs16').innerText = `Sleeper packs (of 16): ${sleeperPacks16.toFixed(1)}`;
+            document.getElementById('packs8').innerText = `Sleeper packs (of 8): ${sleeperPacks8.toFixed(1)}`;
+            document.getElementById('packs6').innerText = `Sleeper packs (of 6): ${sleeperPacks6.toFixed(1)}`;
+            document.getElementById('clips').innerHTML = `*Clips (Pandrol): ${clips.toFixed(1)} | Drums: ${drums.toFixed(1)} | Pallets: ${pallets.toFixed(1)}`;
+            document.getElementById('insulators').innerHTML = `*Insulators (Pandrol): ${insulators.toFixed(1)}`;
+            document.getElementById('insulators-details').innerHTML = `Standard Bags: ${stdBags.toFixed(1)} | Standard Pallets: ${stdPallets.toFixed(1)} | HD Bags: ${hdBags.toFixed(1)} | HD Pallets: ${hdPallets.toFixed(1)}`;
+            document.getElementById('pads').innerHTML = `*Pads (Pandrol): ${pads.toFixed(1)} | Bags of Pads(20): ${bagsOfPads.toFixed(1)} | Pallets(bags of 20): ${palletsOfPads.toFixed(1)} | Pallets (packs of 16): ${palletsOf16.toFixed(1)} | Packs (16): ${packs16.toFixed(1)}`;
+            let railLengthsHtml = '*Rail Lengths<br>';
+            Object.keys(railLengths).sort((a,b)=>a-b).forEach(key => {
+                const doubled = (railLengths[key] * 2).toFixed(2);
+                railLengthsHtml += `${key}m = ${doubled}<br>`;
+            });
+            document.getElementById('rail-lengths').innerHTML = railLengthsHtml;
+            document.getElementById('rail-weight-68').innerText = `Scrap Rail Weight (68kg): ${railWeight68.toFixed(1)} tonnes`;
+            document.getElementById('rail-weight-60').innerText = `Scrap Rail Weight (60kg): ${railWeight60.toFixed(1)} tonnes`;
+            document.getElementById('rail-weight-50').innerText = `Scrap Rail Weight (50kg): ${railWeight50.toFixed(1)} tonnes`;
+
+            document.getElementById('results').style.display = 'block';
+            resultsCopied = false;
+            document.getElementById('copyBtn').classList.remove('disabled');
+        }
+
+        function copyResults() {
+            if (resultsCopied) return;
+            const resultsDiv = document.getElementById('results');
+            let text = '';
+            for (let child of resultsDiv.children) {
+                text += child.innerText + '\n';
+            }
+            navigator.clipboard.writeText(text);
+            resultsCopied = true;
+            document.getElementById('copyBtn').classList.add('disabled');
+        }
+    </script>
+</body>
+</html>
