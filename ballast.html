@@ -167,7 +167,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700.</p>
+            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Uses trapezoidal cross-section for better accuracy. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dims based on typical AU heavy haul (2.5m x 0.25m x 0.23m).</p>
         </div>
     </div>
     <script>
@@ -197,10 +197,11 @@
             const shoulder_m = parseFloat(shoulderStr) / 1000;
             if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
             const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const total_width_m = 2.6 + 2 * shoulder_m; // Sleeper length 2600mm = 2.6m
-            const cross_area = total_width_m * depth_m;
+            const sleeper_length_m = 2.5; // Updated to typical AU heavy haul
+            const bottom_width_m = sleeper_length_m + 2 * shoulder_m;
+            const cross_area = ((sleeper_length_m + bottom_width_m) / 2) * depth_m; // Trapezoidal for accuracy
             const total_vol = distance * cross_area;
-            const sleeper_vol_single = 2.6 * 0.3 * 0.3; // Length x width x height in m (2600mm x 300mm x 300mm)
+            const sleeper_vol_single = sleeper_length_m * 0.25 * 0.23; // Updated dims: width 250mm, height 230mm
             const num_sleepers = distance / spacing;
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
             const net_vol = total_vol - total_sleeper_vol;
