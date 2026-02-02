@@ -162,7 +162,6 @@
             <button class="copy-btn" onclick="copyResults()" id="copyBtn">Copy</button>
         </div>
     </div>
-
     <!-- Info Modal -->
     <div id="infoModal" class="modal">
         <div class="modal-content">
@@ -171,20 +170,16 @@
             <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700.</p>
         </div>
     </div>
-
     <script>
         const sleeperSpacingOptions = [0.6, 0.65, 0.670, 0.675, 0.7];
         let selectedSleeperSpacingIndex = 0;
         let resultsCopied = false;
-
         function showInfo() {
             document.getElementById('infoModal').style.display = 'block';
         }
-
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
-
         function cycleSpacing() {
             selectedSleeperSpacingIndex = (selectedSleeperSpacingIndex + 1) % sleeperSpacingOptions.length;
             const btn = document.querySelector('.spacing-btn');
@@ -193,7 +188,6 @@
                 calculate();
             }
         }
-
         function calculate() {
             const distanceStr = document.getElementById('distance').value;
             const depthStr = document.getElementById('depth').value;
@@ -216,7 +210,6 @@
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
         }
-
         function copyResults() {
             if (resultsCopied) return;
             const resultsDiv = document.getElementById('results');
