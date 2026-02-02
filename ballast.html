@@ -167,7 +167,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Uses trapezoidal cross-section for better accuracy. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dims based on typical AU heavy haul (2.5m x 0.25m x 0.23m).</p>
+            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Uses trapezoidal cross-section with 1:1.5 slope for better accuracy. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dims based on BHP CoP (2.55m x 0.24m x 0.24m).</p>
         </div>
     </div>
     <script>
@@ -197,11 +197,16 @@
             const shoulder_m = parseFloat(shoulderStr) / 1000;
             if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
             const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const sleeper_length_m = 2.5; // Updated to typical AU heavy haul
-            const bottom_width_m = sleeper_length_m + 2 * shoulder_m;
-            const cross_area = ((sleeper_length_m + bottom_width_m) / 2) * depth_m; // Trapezoidal for accuracy
+            const sleeper_length_m = 2.55; // Updated to BHP CoP min
+            const sleeper_width_m = 0.24; // Updated to BHP CoP min
+            const sleeper_height_m = 0.24; // Updated to BHP CoP min
+            const total_height_m = depth_m + sleeper_height_m;
+            const top_width_m = sleeper_length_m + 2 * shoulder_m;
+            const slope_factor = 1.5; // From CoP 1:1.5 slope (horizontal per vertical)
+            const bottom_width_m = top_width_m + 2 * slope_factor * total_height_m;
+            const cross_area = ((top_width_m + bottom_width_m) / 2) * total_height_m; // Trapezoidal
             const total_vol = distance * cross_area;
-            const sleeper_vol_single = sleeper_length_m * 0.25 * 0.23; // Updated dims: width 250mm, height 230mm
+            const sleeper_vol_single = sleeper_length_m * sleeper_width_m * sleeper_height_m;
             const num_sleepers = distance / spacing;
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
             const net_vol = total_vol - total_sleeper_vol;
