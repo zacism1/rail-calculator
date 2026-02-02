@@ -167,7 +167,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Uses trapezoidal cross-section with 1:1.5 slope for better accuracy. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dims based on BHP CoP (2.55m x 0.24m x 0.24m).</p>
+            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Calculation models the full ballast prism as a trapezoid from formation (bottom) up to top of sleeper level, with flat top width = sleeper length + 2x shoulder width, then sloping outward at 1:1.5 (horizontal:vertical) over total height (ballast depth under sleeper + sleeper height). Sleeper volume is subtracted as they displace ballast in cribs/under-rail areas. Uses trapezoidal cross-section with 1:1.5 slope for better accuracy. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dims based on BHP CoP (2.55m x 0.24m x 0.24m).</p>
         </div>
     </div>
     <script>
@@ -211,7 +211,7 @@
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
             const net_vol = total_vol - total_sleeper_vol;
             // Display results
-            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters <img src="ballast.png" class="icon" alt="ballast">`; // Replace src with actual
+            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters`;
             document.getElementById('results').style.display = 'block';
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
