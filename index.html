@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rail Calculators</title>
+    <title>Rail Materials Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,18 +33,9 @@
         }
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 20px;
-        }
-        .quote-btn {
-            background-color: orange;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
         }
         .info-btn {
             background: none;
@@ -57,7 +48,6 @@
             display: flex;
             align-items: center;
             margin-bottom: 20px;
-            flex-wrap: wrap;
         }
         input[type="text"] {
             flex: 1;
@@ -65,8 +55,6 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             margin-right: 10px;
-            margin-bottom: 10px;
-            min-width: 200px;
         }
         .calc-btn, .copy-btn, .spacing-btn {
             background-color: blue;
@@ -76,7 +64,6 @@
             border-radius: 10px;
             cursor: pointer;
             margin-left: 10px;
-            margin-bottom: 10px;
         }
         .disabled {
             opacity: 0.5;
@@ -129,250 +116,172 @@
             color: black;
             cursor: pointer;
         }
-        .decline-btn {
-            background-color: red;
-            color: white;
+        /* Nav styles */
+        nav {
+            background: #ddd;
             padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .agree-btn {
-            background-color: green;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        /* Tab styles */
-        .tabs {
-            display: flex;
             margin-bottom: 20px;
         }
-        .tab {
-            padding: 10px 20px;
-            background: #ddd;
-            border: none;
-            cursor: pointer;
-            margin-right: 5px;
-            border-radius: 5px 5px 0 0;
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: blue;
         }
-        .tab.active {
-            background: white;
-            border-bottom: none;
-        }
-        .panel {
-            display: none;
-        }
-        .panel.active {
-            display: block;
+        nav a.active {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="background-img"></div>
-    <main class="container">
-        <nav class="tabs" role="tablist">
-            <button class="tab active" data-target="materials">Materials</button>
-            <button class="tab" data-target="ballast">Ballast Calculator</button>
-            <button class="tab" data-target="curve">Curve Elevation</button>
-            <button class="tab" data-target="destress">Destress</button>
+    <div class="container">
+        <nav>
+            <a href="index.html" class="active">Materials</a>
+            <a href="ballast.html">Ballast</a>
+            <a href="curve.html">Curve Elevation</a>
+            <a href="destress.html">Destress</a>
         </nav>
-
-        <!-- Materials Panel -->
-        <section id="materials" class="panel active" role="tabpanel">
-            <div class="header">
-                <button class="quote-btn" onclick="showQuote()">Quote of the week</button>
-                <button class="info-btn" onclick="showInfo('materials')">ℹ️</button>
-            </div>
-            <div class="input-row">
-                <input type="text" id="distance-materials" placeholder="Distance of track (in meters)">
-                <button class="calc-btn" onclick="calculateMaterials()" id="calcBtn-materials">Calculate</button>
-            </div>
-            <div class="results" id="results-materials">
-                <div class="result-item" id="sleepers-materials"></div>
-                <div class="result-item" id="packs16-materials"></div>
-                <div class="result-item" id="packs8-materials"></div>
-                <div class="result-item" id="packs6-materials"></div>
-                <div class="result-item" id="clips-materials"></div>
-                <div class="result-item" id="insulators-materials"></div>
-                <div class="result-item" id="insulators-details-materials"></div>
-                <div class="result-item" id="pads-materials"></div>
-                <div class="result-item" id="rail-lengths-materials"></div>
-                <div class="result-item" id="rail-weight-68-materials"></div>
-                <div class="result-item" id="rail-weight-60-materials"></div>
-                <div class="result-item" id="rail-weight-50-materials"></div>
-            </div>
-            <div class="bottom-row">
-                <button class="spacing-btn" onclick="cycleSpacing('materials')">600mm</button>
-                <button class="copy-btn" onclick="copyResults('materials')" id="copyBtn-materials">Copy</button>
-            </div>
-        </section>
-
-        <!-- Ballast Panel -->
-        <section id="ballast" class="panel" role="tabpanel">
-            <div class="header">
-                <button class="quote-btn" onclick="showQuote()">Quote of the week</button>
-                <button class="info-btn" onclick="showInfo('ballast')">ℹ️</button>
-            </div>
-            <div class="input-row">
-                <input type="text" id="distance-ballast" placeholder="Distance of track (in meters)">
-                <input type="text" id="depth" value="300" placeholder="Ballast depth (mm)">
-                <input type="text" id="shoulder" value="300" placeholder="Ballast shoulder width (mm)">
-                <button class="calc-btn" onclick="calculateBallast()" id="calcBtn-ballast">Calculate</button>
-            </div>
-            <div class="results" id="results-ballast">
-                <div class="result-item" id="ballast-output"></div>
-            </div>
-            <div class="bottom-row">
-                <button class="spacing-btn" onclick="cycleSpacing('ballast')">600mm</button>
-                <button class="copy-btn" onclick="copyResults('ballast')" id="copyBtn-ballast">Copy</button>
-            </div>
-        </section>
-
-        <!-- Curve Elevation Panel -->
-        <section id="curve" class="panel" role="tabpanel">
-            <h2>Curve Elevation</h2>
-            <p>Curve elevation calculator coming soon.</p>
-        </section>
-
-        <!-- Destress Panel -->
-        <section id="destress" class="panel" role="tabpanel">
-            <h2>Destress</h2>
-            <p>Destress calculator coming soon.</p>
-        </section>
-    </main>
-
-    <!-- Shared Modals -->
-    <div id="termsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('termsModal')">&times;</span>
-            <h2>Terms of Service</h2>
-            <!-- Terms text here (same as before) -->
-            <p>Last updated: [15-06-2023]</p>
-            <!-- ... full terms omitted for brevity, copy from previous -->
-            <button class="decline-btn" onclick="declineTerms()">Decline</button>
-            <button class="agree-btn" onclick="agreeTerms()">Agree</button>
+        <div class="header">
+            <button class="info-btn" onclick="showInfo()">ℹ️</button>
+        </div>
+        <div class="input-row">
+            <input type="text" id="distance" placeholder="Distance of track (in meters)">
+            <button class="calc-btn" onclick="calculate()">Calculate</button>
+        </div>
+        <div class="results" id="results">
+            <div class="result-item" id="sleepers"></div>
+            <div class="result-item" id="packs16"></div>
+            <div class="result-item" id="packs8"></div>
+            <div class="result-item" id="packs6"></div>
+            <div class="result-item" id="clips"></div>
+            <div class="result-item" id="insulators"></div>
+            <div class="result-item" id="insulators-details"></div>
+            <div class="result-item" id="pads"></div>
+            <div class="result-item" id="rail-lengths"></div>
+            <div class="result-item" id="rail-weight-68"></div>
+            <div class="result-item" id="rail-weight-60"></div>
+            <div class="result-item" id="rail-weight-50"></div>
+        </div>
+        <div class="bottom-row">
+            <button class="spacing-btn" onclick="cycleSpacing()">600mm</button>
+            <button class="copy-btn" onclick="copyResults()" id="copyBtn">Copy</button>
         </div>
     </div>
-    <div id="quoteModal" class="modal">
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('quoteModal')">&times;</span>
-            <h2>Quote of the Week</h2>
-            <p id="quoteText"></p>
-        </div>
-    </div>
-    <div id="infoModal-materials" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('infoModal-materials')">&times;</span>
+            <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
             <p>Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700. Scrap steel weight does not account for head loss and assumes both legs of the track are being replaced.</p>
         </div>
     </div>
-    <div id="infoModal-ballast" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('infoModal-ballast')">&times;</span>
-            <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700.</p>
-        </div>
-    </div>
 
     <script>
-        const quotes = [ /* same quotes array as before */ ];
         const sleeperSpacingOptions = [0.6, 0.65, 0.670, 0.675, 0.7];
-        let selectedSleeperSpacingIndexMaterials = 0;
-        let selectedSleeperSpacingIndexBallast = 0;
-        let agreedToTerms = localStorage.getItem('agreedToTerms') === 'true';
-        let resultsCopiedMaterials = false;
-        let resultsCopiedBallast = false;
+        let selectedSleeperSpacingIndex = 0;
+        let resultsCopied = false;
 
-        // Init quote (same as before)
-        const weekOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 1)) / (24 * 60 * 60 * 1000 * 7));
-        const quoteIndex = weekOfYear % quotes.length;
-        document.getElementById('quoteText').innerText = quotes[quoteIndex];
-
-        // Show terms if not agreed (same as before)
-        if (!agreedToTerms) {
-            document.getElementById('termsModal').style.display = 'block';
-            document.querySelectorAll('.calc-btn').forEach(btn => btn.classList.add('disabled'));
-        }
-
-        function agreeTerms() {
-            agreedToTerms = true;
-            localStorage.setItem('agreedToTerms', 'true');
-            closeModal('termsModal');
-            document.querySelectorAll('.calc-btn').forEach(btn => btn.classList.remove('disabled'));
-        }
-
-        function declineTerms() {
-            document.body.innerHTML = '<h1>Terms Declined</h1>';
-        }
-
-        function showQuote() {
-            document.getElementById('quoteModal').style.display = 'block';
-        }
-
-        function showInfo(tab) {
-            document.getElementById(`infoModal-${tab}`).style.display = 'block';
+        function showInfo() {
+            document.getElementById('infoModal').style.display = 'block';
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.target).classList.add('active');
-            });
-        });
-
-        function cycleSpacing(tab) {
-            if (tab === 'materials') {
-                selectedSleeperSpacingIndexMaterials = (selectedSleeperSpacingIndexMaterials + 1) % sleeperSpacingOptions.length;
-                document.querySelector('#materials .spacing-btn').innerText = `${Math.round(sleeperSpacingOptions[selectedSleeperSpacingIndexMaterials] * 1000)}mm`;
-                if (document.getElementById('distance-materials').value) calculateMaterials();
-            } else if (tab === 'ballast') {
-                selectedSleeperSpacingIndexBallast = (selectedSleeperSpacingIndexBallast + 1) % sleeperSpacingOptions.length;
-                document.querySelector('#ballast .spacing-btn').innerText = `${Math.round(sleeperSpacingOptions[selectedSleeperSpacingIndexBallast] * 1000)}mm`;
-                if (document.getElementById('distance-ballast').value) calculateBallast();
+        function cycleSpacing() {
+            selectedSleeperSpacingIndex = (selectedSleeperSpacingIndex + 1) % sleeperSpacingOptions.length;
+            const btn = document.querySelector('.spacing-btn');
+            btn.innerText = `${Math.round(sleeperSpacingOptions[selectedSleeperSpacingIndex] * 1000)}mm`;
+            if (document.getElementById('distance').value) {
+                calculate();
             }
         }
 
-        function calculateMaterials() {
-            if (!agreedToTerms) return;
-            const distance = parseFloat(document.getElementById('distance-materials').value);
+        function calculate() {
+            const distanceStr = document.getElementById('distance').value;
+            const distance = parseFloat(distanceStr);
             if (isNaN(distance)) return;
-            const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndexMaterials];
+
+            const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
             const numberOfSleepers = distance / spacing;
-            // ... full materials calc logic here (same as previous materials page, e.g., packs, clips, insulators, pads, rail lengths, weights)
-            // Update DOM elements like document.getElementById('sleepers-materials').innerText = ...
-            // (Omitted for brevity; copy from previous JS)
-            document.getElementById('results-materials').style.display = 'block';
-            resultsCopiedMaterials = false;
-            document.getElementById('copyBtn-materials').classList.remove('disabled');
+
+            // Sleepers and packs
+            const sleeperPacks16 = Math.ceil(numberOfSleepers / 16 * 10) / 10;
+            const sleeperPacks8 = Math.ceil(numberOfSleepers / 8 * 10) / 10;
+            const sleeperPacks6 = Math.ceil(numberOfSleepers / 6 * 10) / 10;
+
+            // Clips
+            const clips = numberOfSleepers * 4;
+            const drums = clips / 600;
+            const pallets = clips / 2400;
+
+            // Insulators
+            const insulators = numberOfSleepers * 4;
+            const hdBags = insulators / 80;
+            const stdBags = insulators / 300;
+            const hdPallets = insulators / 6000;
+            const stdPallets = insulators / 9000;
+
+            // Pads
+            const pads = numberOfSleepers * 2;
+            const bagsOfPads = pads / 20;
+            const palletsOfPads = pads / 1600;
+            const packs16 = pads / 16;
+            const palletsOf16 = pads / 1440;
+
+            // Rail lengths
+            const railLengths = {
+                25: distance / 25,
+                27: distance / 27,
+                100: distance / 100,
+                325: distance / 325,
+                400: distance / 400
+            };
+
+            // Rail weights
+            let railWeight68 = (distance * 2 * 68) / 1000;
+            let railWeight60 = (distance * 2 * 60) / 1000;
+            let railWeight50 = (distance * 2 * 50) / 1000;
+            railWeight68 = Math.round(railWeight68 * 10) / 10;
+            railWeight60 = Math.round(railWeight60 * 10) / 10;
+            railWeight50 = Math.round(railWeight50 * 10) / 10;
+
+            // Display results
+            document.getElementById('sleepers').innerText = `*Sleepers (concrete): ${numberOfSleepers.toFixed(2)}`;
+            document.getElementById('packs16').innerText = `Sleeper packs (of 16): ${sleeperPacks16.toFixed(1)}`;
+            document.getElementById('packs8').innerText = `Sleeper packs (of 8): ${sleeperPacks8.toFixed(1)}`;
+            document.getElementById('packs6').innerText = `Sleeper packs (of 6): ${sleeperPacks6.toFixed(1)}`;
+            document.getElementById('clips').innerHTML = `*Clips (Pandrol): ${clips.toFixed(1)} | Drums: ${drums.toFixed(1)} | Pallets: ${pallets.toFixed(1)} <img src="2clip.png" class="icon" alt="clips">`;
+            document.getElementById('insulators').innerHTML = `*Insulators (Pandrol): ${insulators.toFixed(1)} <img src="insulator.png" class="icon" alt="insulators">`;
+            document.getElementById('insulators-details').innerHTML = `Standard Bags: ${stdBags.toFixed(1)} | Standard Pallets: ${stdPallets.toFixed(1)} | HD Bags: ${hdBags.toFixed(1)} | HD Pallets: ${hdPallets.toFixed(1)}`;
+            document.getElementById('pads').innerHTML = `*Pads (Pandrol): ${pads.toFixed(1)} | Bags of Pads(20): ${bagsOfPads.toFixed(1)} | Pallets(bags of 20): ${palletsOfPads.toFixed(1)} | Pallets (packs of 16): ${palletsOf16.toFixed(1)} | Packs (16): ${packs16.toFixed(1)} <img src="pad.png" class="icon" alt="pads">`;
+            let railLengthsHtml = '*Rail Lengths<br>';
+            Object.keys(railLengths).sort((a,b)=>a-b).forEach(key => {
+                const doubled = (railLengths[key] * 2).toFixed(2);
+                railLengthsHtml += `${key}m = ${doubled}<br>`;
+            });
+            document.getElementById('rail-lengths').innerHTML = railLengthsHtml;
+            document.getElementById('rail-weight-68').innerText = `Scrap Rail Weight (68kg): ${railWeight68.toFixed(1)} tonnes`;
+            document.getElementById('rail-weight-60').innerText = `Scrap Rail Weight (60kg): ${railWeight60.toFixed(1)} tonnes`;
+            document.getElementById('rail-weight-50').innerText = `Scrap Rail Weight (50kg): ${railWeight50.toFixed(1)} tonnes`;
+
+            document.getElementById('results').style.display = 'block';
+            resultsCopied = false;
+            document.getElementById('copyBtn').classList.remove('disabled');
         }
 
-        function calculateBallast() {
-            if (!agreedToTerms) return;
-            const distance = parseFloat(document.getElementById('distance-ballast').value);
-            const depth_m = parseFloat(document.getElementById('depth').value) / 1000;
-            const shoulder_m = parseFloat(document.getElementById('shoulder').value) / 1000;
-            if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
-            const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndexBallast];
-            // ... full ballast calc logic here (same as previous ballast page)
-            // Update document.getElementById('ballast-output').innerHTML = ...
-            document.getElementById('results-ballast').style.display = 'block';
-            resultsCopiedBallast = false;
-            document.getElementById('copyBtn-ballast').classList.remove('disabled');
-        }
-
-        function copyResults(tab) {
-            // ... copy logic per tab, similar to previous
+        function copyResults() {
+            if (resultsCopied) return;
+            const resultsDiv = document.getElementById('results');
+            let text = '';
+            for (let child of resultsDiv.children) {
+                text += child.innerText + '\n';
+            }
+            navigator.clipboard.writeText(text);
+            resultsCopied = true;
+            document.getElementById('copyBtn').classList.add('disabled');
         }
     </script>
 </body>
