@@ -167,7 +167,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>Calculation models the full ballast prism as a trapezoid from formation (bottom) up to top of sleeper level, with flat top width = sleeper length + 2x shoulder width, then sloping outward at 1:1.5 (horizontal:vertical) over total height (ballast depth under sleeper + sleeper height). Sleeper volume is subtracted as they displace ballast in cribs/under-rail areas. Default spacing is 600mm. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dimensions: 2.55m x 0.24m x 0.24m.</p>
+            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700. Calculation assumes a 1:1.5 shoulder slope (from BHP CoP) and 1:30 formation cross-fall for drainage (typical standard, not explicit in CoP)—this makes cross-section a trapezoid for more accuracy over long distances.</p>
         </div>
     </div>
     <script>
@@ -197,21 +197,20 @@
             const shoulder_m = parseFloat(shoulderStr) / 1000;
             if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
             const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const sleeper_length_m = 2.55; // Updated to BHP CoP min
-            const sleeper_width_m = 0.24; // Updated to BHP CoP min
-            const sleeper_height_m = 0.24; // Updated to BHP CoP min
-            const total_height_m = depth_m + sleeper_height_m;
-            const top_width_m = sleeper_length_m + 2 * shoulder_m;
-            const slope_factor = 1.5; // From CoP 1:1.5 slope (horizontal per vertical)
-            const bottom_width_m = top_width_m + 2 * slope_factor * total_height_m;
-            const cross_area = ((top_width_m + bottom_width_m) / 2) * total_height_m; // Trapezoidal
+            const sleeper_length_m = 2.6; // Across track
+            const total_flat_width_m = sleeper_length_m + 2 * shoulder_m; // Flat part
+            const formation_slope = 1 / 30; // Typical cross-fall for drainage (3.33%)
+            const height_diff_m = total_flat_width_m * formation_slope; // Extra depth on low side
+            const min_depth_m = depth_m; // User input as min/high point
+            const max_depth_m = min_depth_m + height_diff_m;
+            const cross_area = ((min_depth_m + max_depth_m) / 2) * total_flat_width_m; // Trapezoid area
             const total_vol = distance * cross_area;
-            const sleeper_vol_single = sleeper_length_m * sleeper_width_m * sleeper_height_m;
+            const sleeper_vol_single = 2.6 * 0.3 * 0.3; // Length x width x height in m
             const num_sleepers = distance / spacing;
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
             const net_vol = total_vol - total_sleeper_vol;
             // Display results
-            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters`;
+            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters <img src="ballast.png" class="icon" alt="ballast">`; // Replace src with actual
             document.getElementById('results').style.display = 'block';
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
