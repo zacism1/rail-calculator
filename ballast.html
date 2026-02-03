@@ -167,7 +167,15 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700. Calculation assumes a 1:1.5 shoulder slope (from BHP CoP) and 1:30 formation cross-fall for drainage (typical standard, not explicit in CoP)—this makes cross-section a trapezoid for more accuracy over long distances.</p>
+            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700.</p>
+            <p>This calculator estimates net ballast volume over a track distance, subtracting embedded sleeper volume. Equations:</p>
+            <p>Total width (m) = 2.6 (sleeper length) + 2 × shoulder (m)</p>
+            <p>Cross-sectional area (m²) = total width × depth (m)</p>
+            <p>Total volume (m³) = distance (m) × area</p>
+            <p>Single sleeper volume (m³) = 2.6 × 0.3 × 0.3</p>
+            <p>Number of sleepers = distance / spacing (m)</p>
+            <p>Total sleeper volume (m³) = number of sleepers × single volume</p>
+            <p>Net volume (m³) = total volume - total sleeper volume</p>
         </div>
     </div>
     <script>
@@ -197,20 +205,15 @@
             const shoulder_m = parseFloat(shoulderStr) / 1000;
             if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
             const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const sleeper_length_m = 2.6; // Across track
-            const total_flat_width_m = sleeper_length_m + 2 * shoulder_m; // Flat part
-            const formation_slope = 1 / 30; // Typical cross-fall for drainage (3.33%)
-            const height_diff_m = total_flat_width_m * formation_slope; // Extra depth on low side
-            const min_depth_m = depth_m; // User input as min/high point
-            const max_depth_m = min_depth_m + height_diff_m;
-            const cross_area = ((min_depth_m + max_depth_m) / 2) * total_flat_width_m; // Trapezoid area
+            const total_width_m = 2.6 + 2 * shoulder_m; // Sleeper length 2600mm = 2.6m
+            const cross_area = total_width_m * depth_m;
             const total_vol = distance * cross_area;
-            const sleeper_vol_single = 2.6 * 0.3 * 0.3; // Length x width x height in m
+            const sleeper_vol_single = 2.6 * 0.3 * 0.3; // Length x width x height in m (2600mm x 300mm x 300mm)
             const num_sleepers = distance / spacing;
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
             const net_vol = total_vol - total_sleeper_vol;
             // Display results
-            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters <img src="ballast.png" class="icon" alt="ballast">`; // Replace src with actual
+            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters`;
             document.getElementById('results').style.display = 'block';
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
