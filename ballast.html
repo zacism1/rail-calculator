@@ -79,6 +79,11 @@
         .result-item {
             margin-bottom: 10px;
         }
+        .icon {
+            width: 25px;
+            height: 25px;
+            margin-left: 10px;
+        }
         .bottom-row {
             display: flex;
             justify-content: flex-end;
@@ -162,16 +167,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700.</p>
-            <p>This calculator estimates net ballast volume over a track distance, incorporating flat shoulders and 1:1.5 slope, subtracting embedded sleeper volume. Equations (all in meters):</p>
-            <p>Total flat width = 2.6 (sleeper length) + 2 × shoulder</p>
-            <p>Slope run each side = depth × 1.5</p>
-            <p>Cross-sectional area = depth × total flat width + 2 × (0.5 × slope run × depth)</p>
-            <p>Total volume = distance × area</p>
-            <p>Single sleeper volume = 2.6 × 0.3 × 0.3</p>
-            <p>Number of sleepers = distance / spacing</p>
-            <p>Total sleeper volume = number of sleepers × single volume</p>
-            <p>Net volume = total volume - total sleeper volume</p>
+            <p>Calculation models the full ballast prism as a trapezoid from formation (bottom) up to top of sleeper level, with flat top width = sleeper length + 2x shoulder width, then sloping outward at 1:1.5 (horizontal:vertical) over total height (ballast depth under sleeper + sleeper height). Sleeper volume is subtracted as they displace ballast in cribs/under-rail areas. Default spacing is 600mm. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dimensions: 2.55m x 0.24m x 0.24m.</p>
         </div>
     </div>
     <script>
@@ -201,13 +197,16 @@
             const shoulder_m = parseFloat(shoulderStr) / 1000;
             if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
             const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const sleeper_length_m = 2.6;
-            const total_flat_width_m = sleeper_length_m + 2 * shoulder_m;
-            const slope_run_m = depth_m * 1.5; // For 1:1.5 slope (run = depth * 1.5)
-            const shoulder_triangle_area = 0.5 * slope_run_m * depth_m; // Triangle area each side
-            const cross_area = depth_m * total_flat_width_m + 2 * shoulder_triangle_area;
+            const sleeper_length_m = 2.55; // Updated to BHP CoP min
+            const sleeper_width_m = 0.24; // Updated to BHP CoP min
+            const sleeper_height_m = 0.24; // Updated to BHP CoP min
+            const total_height_m = depth_m + sleeper_height_m;
+            const top_width_m = sleeper_length_m + 2 * shoulder_m;
+            const slope_factor = 1.5; // From CoP 1:1.5 slope (horizontal per vertical)
+            const bottom_width_m = top_width_m + 2 * slope_factor * total_height_m;
+            const cross_area = ((top_width_m + bottom_width_m) / 2) * total_height_m; // Trapezoidal
             const total_vol = distance * cross_area;
-            const sleeper_vol_single = 2.6 * 0.3 * 0.3;
+            const sleeper_vol_single = sleeper_length_m * sleeper_width_m * sleeper_height_m;
             const num_sleepers = distance / spacing;
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
             const net_vol = total_vol - total_sleeper_vol;
