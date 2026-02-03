@@ -197,21 +197,23 @@
             const shoulder_m = parseFloat(shoulderStr) / 1000;
             if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
             const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const sleeper_length_m = 2.55; // Updated to BHP CoP min
-            const sleeper_width_m = 0.24; // Updated to BHP CoP min
-            const sleeper_height_m = 0.24; // Updated to BHP CoP min
+            const sleeper_length_m = 2.55;
+            const sleeper_width_m = 0.24;
+            const sleeper_height_m = 0.24;
             const total_height_m = depth_m + sleeper_height_m;
             const top_width_m = sleeper_length_m + 2 * shoulder_m;
-            const slope_factor = 1.5; // From CoP 1:1.5 slope (horizontal per vertical)
+            const slope_factor = 1.5;
             const bottom_width_m = top_width_m + 2 * slope_factor * total_height_m;
-            const cross_area = ((top_width_m + bottom_width_m) / 2) * total_height_m; // Trapezoidal
+            const cross_area = ((top_width_m + bottom_width_m) / 2) * total_height_m;
             const total_vol = distance * cross_area;
             const sleeper_vol_single = sleeper_length_m * sleeper_width_m * sleeper_height_m;
             const num_sleepers = distance / spacing;
             const total_sleeper_vol = num_sleepers * sleeper_vol_single;
-            const net_vol = total_vol - total_sleeper_vol;
+            const net_vol = Math.max(0, total_vol - total_sleeper_vol);
+            const density = 1.55; // Typical compacted railway ballast t/m³
+            const weight = net_vol * density;
             // Display results
-            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters`;
+            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters | Weight (approx): ${weight.toFixed(2)} tonnes (at 1.55 t/m³)`;
             document.getElementById('results').style.display = 'block';
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
