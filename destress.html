@@ -251,7 +251,7 @@
             } else {
                 const delta_L = L0 * 0.0000115 * TR_delta * 1000;
                 const P = Math.abs(TR_delta) * 2.12;
-                output = `Change in length = ${delta_L.toFixed(2)} mm<br>Longitudinal Force = ${P.toFixed(2)} tons`;
+                output = `Change in length = ${delta_L.toFixed(2)} mm<br>Tensile/Compressive Force = ${P.toFixed(2)} tons`;
             }
             document.getElementById('output').innerHTML = output;
             document.getElementById('results').style.display = 'block';
