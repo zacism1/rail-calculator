@@ -188,8 +188,8 @@
             <button class="info-btn" onclick="showInfo()">ℹ️</button>
         </div>
         <div class="input-row">
-            <input type="text" id="length" placeholder="Length of free/original rail (m)">
-            <input type="text" id="temp" placeholder="Average temp (below 37) or change in temp (°C)">
+            <input type="text" id="length" placeholder="Length of free rail (m)">
+            <input type="text" id="temp" placeholder="Average temp (below 37)">
             <input type="text" id="radius" placeholder="Curve radius R (m) for rollers (optional)">
             <button class="calc-btn" onclick="calculate()">Calculate</button>
         </div>
@@ -206,14 +206,14 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p id="infoText">The required lengthening of the rail, to calibrate the rail to the DSFT (37 °C), can be determined with: e = L0 × 0.1115 × (37 - TR) e = Desired rail extension in millimetres (mm) L0 = Initial length of unstressed rail in meters (m) TR = Current average rail temperature in degrees Celsius (°C) The force necessary to achieve the desired rail extension can be determined using: F = MR × 0.031111 × (37 - TR) F = Force required to pull the rail, measured in ton-force MR = Weight of the rail per meter in kilograms (kg) TR = Current average rail temperature in degrees Celsius (°C) This pulling force calculation should be based on the actual average temperature of the rail that is to be de-stressed. (Roller spacing based on the bhp codes of practice) OTT is minimum 40 meters outside of stressing length ITT is the first sleeper inside the stressing length</p>
+            <p id="infoText">The required lengthening of the rail, to calibrate the rail to the DSFT (37 °C), can be determined with: e = L0 × 0.1115 × (37 - TR) e = Desired rail extension in millimetres (mm) L0 = Initial length of unstressed rail in meters (m) TR = Current average rail temperature in degrees Celsius (°C) The force necessary to achieve the desired rail extension can be determined using: F = MR × 0.031111 × (37 - TR) F = Force required to pull the rail, measured in ton-force MR = Weight of the rail per meter in kilograms (kg) TR = Current average rail temperature in degrees Celsius (°C) This pulling force calculation should be based on the actual average temperature of the rail that is to be de-stressed. Roller spacing: tangent/R≥800 every 12 sleepers, 800>R≥500 every 5, 500>R≥400 every 3, R<400 every 2. OTT is minimum 40 meters outside of stressing length ITT is the first sleeper inside the stressing length</p>
         </div>
     </div>
     <script>
         let isDestressMode = true;
         let resultsCopied = false;
         function showInfo() {
-            document.getElementById('infoText').innerHTML = isDestressMode ? `The required lengthening of the rail, to calibrate the rail to the DSFT (37 °C), can be determined with:<br>e = L0 × 0.1115 × (37 - TR)<br>e = Desired rail extension in millimetres (mm)<br>L0 = Initial length of unstressed rail in meters (m)<br>TR = Current average rail temperature in degrees Celsius (°C)<br>The force necessary to achieve the desired rail extension can be determined using:<br>F = MR × 0.031111 × (37 - TR)<br>F = Force required to pull the rail, measured in ton-force<br>MR = Weight of the rail per meter in kilograms (kg)<br>TR = Current average rail temperature in degrees Celsius (°C)<br>This pulling force calculation should be based on the actual average rail temperature of the rail that is to be de-stressed.<br>(Roller spacing based on the bhp codes of practice)<br>OTT is minimum 40 meters outside of stressing length<br>ITT is the first sleeper inside the stressing length` : `Input the initial length (at the time of rail installation) and a temperature change, solely numbers above 37 (37 is the reference point, so an input of 3 would correspond to 40 degrees Celsius). This calculation pertains to the Expansion and Force beyond the SFT (37).<br>The magnitude of rail expansion or contraction hinges on the original rail length (L0 in meters), the thermal expansion coefficient for steel (α = 0.0000115 per degree Celsius), and the variation in rail temperature (ΔT in degrees Celsius).<br>∆L = L0 × α × ∆T<br>The force generated in the rail is influenced by the rail's cross-sectional area (A in square meters), the Young's Modulus for steel (E in MPa), the stress-free temperature of the rail (TN in degrees Celsius), the present rail temperature (TR in degrees Celsius), and the thermal expansion coefficient (α).<br>P= EAα×(TR ‒TN)`;
+            document.getElementById('infoText').innerHTML = isDestressMode ? `The required lengthening of the rail, to calibrate the rail to the DSFT (37 °C), can be determined with:<br>e = L0 × 0.1115 × (37 - TR)<br>e = Desired rail extension in millimetres (mm)<br>L0 = Initial length of unstressed rail in meters (m)<br>TR = Current average rail temperature in degrees Celsius (°C)<br>The force necessary to achieve the desired rail extension can be determined using:<br>F = MR × 0.031111 × (37 - TR)<br>F = Force required to pull the rail, measured in ton-force<br>MR = Weight of the rail per meter in kilograms (kg)<br>TR = Current average rail temperature in degrees Celsius (°C)<br>This pulling force calculation should be based on the actual average temperature of the rail that is to be de-stressed.<br>Roller spacing: tangent/R≥800 every 12 sleepers, 800>R≥500 every 5, 500>R≥400 every 3, R<400 every 2.<br>OTT is minimum 40 meters outside of stressing length<br>ITT is the first sleeper inside the stressing length` : `Input the initial length (at the time of rail installation) and a temperature change, solely numbers above 37 (37 is the reference point, so an input of 3 would correspond to 40 degrees Celsius). This calculation pertains to the Expansion and Force beyond the SFT (37).<br>The magnitude of rail expansion or contraction hinges on the original rail length (L0 in meters), the thermal expansion coefficient for steel (α = 0.0000115 per degree Celsius), and the variation in rail temperature (ΔT in degrees Celsius).<br>∆L = L0 × α × ∆T<br>The force generated in the rail is influenced by the rail's cross-sectional area (A in square meters), the Young's Modulus for steel (E in MPa), the stress-free temperature of the rail (TN in degrees Celsius), the present rail temperature (TR in degrees Celsius), and the thermal expansion coefficient (α).<br>P= EAα×(TR ‒TN)`;
             document.getElementById('infoModal').style.display = 'block';
         }
         function closeModal(modalId) {
@@ -224,7 +224,7 @@
             document.querySelector('.toggle-btn').innerText = isDestressMode ? 'Switch to Growth & Force' : 'Switch to Destress';
             document.getElementById('length').placeholder = isDestressMode ? 'Length of free rail (m)' : 'Length of original rail (m)';
             document.getElementById('temp').placeholder = isDestressMode ? 'Average temp (below 37)' : 'Change in temperature (°C)';
-            document.getElementById('radius').placeholder = isDestressMode ? 'Curve radius R (m) for rollers (optional)' : 'Curve radius R (m) (optional, unused in this mode)';
+            document.getElementById('radius').style.display = isDestressMode ? 'block' : 'none';
             document.getElementById('results').style.display = 'none';
         }
         function calculate() {
@@ -238,11 +238,20 @@
                 const e = L0 * 11.5 * deltaT / 1000;
                 const F = 68 * 0.031111 * deltaT;
                 const sleepers = Math.floor(L0 * 1000 / 600);
+                let rollerSpacing = '';
                 let rollers = 0;
                 if (R >= 800) {
+                    rollerSpacing = 'every 12 sleepers';
                     rollers = Math.floor(sleepers / 12) * 4;
                 } else if (R >= 500 && R < 800) {
+                    rollerSpacing = 'every 5 sleepers';
                     rollers = Math.floor(sleepers / 5) * 4;
+                } else if (R >= 400 && R < 500) {
+                    rollerSpacing = 'every 3 sleepers';
+                    rollers = Math.floor(sleepers / 3) * 4;
+                } else if (R < 400) {
+                    rollerSpacing = 'every 2 sleepers';
+                    rollers = Math.floor(sleepers / 2) * 4;
                 }
                 const dividedLength = L0 / 4;
                 let accumulated = 0;
@@ -252,7 +261,7 @@
                     quarterPoints += '---' + Math.round(accumulated);
                 }
                 quarterPoints += '---' + Math.round(L0);
-                output = `(37°C Stress Free Temperature)<br>Rail extension required: ${e.toFixed(2)} mm<br>Pulling force required: ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers based on pilbara standards.<br>Rollers required Tangent to R ≥ 800 (Every 12 Sleepers): ${rollers}<br>Rollers required 800 > R ≥ 500 (Every 5 Sleepers): ${rollers}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
+                output = `(37°C Stress Free Temperature)<br>Rail extension required: ${e.toFixed(2)} mm<br>Pulling force required: ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers required (${rollerSpacing}): ${rollers}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
             } else {
                 const delta_L = L0 * 0.0000115 * TR_delta * 1000;
                 const P = Math.abs(TR_delta) * 2.12;
