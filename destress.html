@@ -3,15 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ballast Calculator</title>
+    <title>Destress Calculator</title>
     <style>
+        :root {
+            --bg: #f0f0f0;
+            --card: rgba(255, 255, 255, 0.8);
+            --accent: blue;
+            --text: #333;
+            --muted: #666;
+            --border: #ccc;
+        }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: var(--bg);
             margin: 0;
             padding: 20px;
             position: relative;
             overflow-y: auto;
+            color: var(--text);
         }
         .background-img {
             position: absolute;
@@ -27,9 +36,10 @@
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.8);
+            background: var(--card);
             padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .header {
             display: flex;
@@ -41,33 +51,44 @@
             background: none;
             border: none;
             font-size: 22px;
-            color: blue;
+            color: var(--accent);
             cursor: pointer;
+            transition: color 0.3s;
+        }
+        .info-btn:hover {
+            color: darkblue;
         }
         .input-row {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 10px;
         }
         input[type="text"] {
             flex: 1;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border);
             border-radius: 5px;
-            margin-right: 10px;
-            margin-bottom: 10px;
             min-width: 200px;
+            transition: border-color 0.3s;
         }
-        .calc-btn, .copy-btn, .spacing-btn {
-            background-color: blue;
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+        .calc-btn, .copy-btn, .toggle-btn {
+            background-color: var(--accent);
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            margin-left: 10px;
-            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .calc-btn:hover, .copy-btn:hover, .toggle-btn:hover {
+            background-color: darkblue;
+            transform: translateY(-2px);
         }
         .disabled {
             opacity: 0.5;
@@ -79,15 +100,11 @@
         .result-item {
             margin-bottom: 10px;
         }
-        .icon {
-            width: 25px;
-            height: 25px;
-            margin-left: 10px;
-        }
         .bottom-row {
             display: flex;
             justify-content: flex-end;
             margin-top: 20px;
+            gap: 10px;
         }
         /* Modal styles */
         .modal {
@@ -125,14 +142,36 @@
             background: #ddd;
             padding: 10px;
             margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         nav a {
             margin-right: 15px;
             text-decoration: none;
-            color: blue;
+            color: var(--accent);
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: darkblue;
         }
         nav a.active {
             font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+            }
+            input[type="text"] {
+                width: 100%;
+            }
+            .bottom-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            nav {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -141,24 +180,24 @@
     <div class="container">
         <nav>
             <a href="index.html">Materials</a>
-            <a href="ballast.html" class="active">Ballast</a>
+            <a href="ballast.html">Ballast</a>
             <a href="curve.html">Curve Elevation</a>
-            <a href="destress.html">Destress</a>
+            <a href="destress.html" class="active">Destress</a>
         </nav>
         <div class="header">
             <button class="info-btn" onclick="showInfo()">ℹ️</button>
         </div>
         <div class="input-row">
-            <input type="text" id="distance" placeholder="Distance of track (in meters)">
-            <input type="text" id="depth" value="300" placeholder="Ballast depth (mm)">
-            <input type="text" id="shoulder" value="300" placeholder="Ballast shoulder width (mm)">
+            <input type="text" id="length" placeholder="Length of free/original rail (m)">
+            <input type="text" id="temp" placeholder="Average temp (below 37) or change in temp (°C)">
+            <input type="text" id="radius" placeholder="Curve radius R (m) for rollers (optional)">
             <button class="calc-btn" onclick="calculate()">Calculate</button>
         </div>
         <div class="results" id="results">
-            <div class="result-item" id="ballast"></div>
+            <div class="result-item" id="output"></div>
         </div>
         <div class="bottom-row">
-            <button class="spacing-btn" onclick="cycleSpacing()">600mm</button>
+            <button class="toggle-btn" onclick="toggleMode()">Switch to Growth & Force</button>
             <button class="copy-btn" onclick="copyResults()" id="copyBtn">Copy</button>
         </div>
     </div>
@@ -167,45 +206,59 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>The ballast quantity might be slightly inaccurate depending on the specific requirements of the track section. Press the 600mm button to toggle between spacing options, 600, 650, 670, 675, 700.</p>
+            <p id="infoText">The required lengthening of the rail, to calibrate the rail to the DSFT (37 °C), can be determined with: e = L0 × 0.1115 × (37 - TR) e = Desired rail extension in millimetres (mm) L0 = Initial length of unstressed rail in meters (m) TR = Current average rail temperature in degrees Celsius (°C) The force necessary to achieve the desired rail extension can be determined using: F = MR × 0.031111 × (37 - TR) F = Force required to pull the rail, measured in ton-force MR = Weight of the rail per meter in kilograms (kg) TR = Current average rail temperature in degrees Celsius (°C) This pulling force calculation should be based on the actual average temperature of the rail that is to be de-stressed. (Roller spacing based on the bhp codes of practice) OTT is minimum 40 meters outside of stressing length ITT is the first sleeper inside the stressing length</p>
         </div>
     </div>
     <script>
-        const sleeperSpacingOptions = [0.6, 0.65, 0.670, 0.675, 0.7];
-        let selectedSleeperSpacingIndex = 0;
+        let isDestressMode = true;
         let resultsCopied = false;
         function showInfo() {
+            document.getElementById('infoText').innerHTML = isDestressMode ? `The required lengthening of the rail, to calibrate the rail to the DSFT (37 °C), can be determined with:<br>e = L0 × 0.1115 × (37 - TR)<br>e = Desired rail extension in millimetres (mm)<br>L0 = Initial length of unstressed rail in meters (m)<br>TR = Current average rail temperature in degrees Celsius (°C)<br>The force necessary to achieve the desired rail extension can be determined using:<br>F = MR × 0.031111 × (37 - TR)<br>F = Force required to pull the rail, measured in ton-force<br>MR = Weight of the rail per meter in kilograms (kg)<br>TR = Current average rail temperature in degrees Celsius (°C)<br>This pulling force calculation should be based on the actual average rail temperature of the rail that is to be de-stressed.<br>(Roller spacing based on the bhp codes of practice)<br>OTT is minimum 40 meters outside of stressing length<br>ITT is the first sleeper inside the stressing length` : `Input the initial length (at the time of rail installation) and a temperature change, solely numbers above 37 (37 is the reference point, so an input of 3 would correspond to 40 degrees Celsius). This calculation pertains to the Expansion and Force beyond the SFT (37).<br>The magnitude of rail expansion or contraction hinges on the original rail length (L0 in meters), the thermal expansion coefficient for steel (α = 0.0000115 per degree Celsius), and the variation in rail temperature (ΔT in degrees Celsius).<br>∆L = L0 × α × ∆T<br>The force generated in the rail is influenced by the rail's cross-sectional area (A in square meters), the Young's Modulus for steel (E in MPa), the stress-free temperature of the rail (TN in degrees Celsius), the present rail temperature (TR in degrees Celsius), and the thermal expansion coefficient (α).<br>P= EAα×(TR ‒TN)`;
             document.getElementById('infoModal').style.display = 'block';
         }
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
-        function cycleSpacing() {
-            selectedSleeperSpacingIndex = (selectedSleeperSpacingIndex + 1) % sleeperSpacingOptions.length;
-            const btn = document.querySelector('.spacing-btn');
-            btn.innerText = `${Math.round(sleeperSpacingOptions[selectedSleeperSpacingIndex] * 1000)}mm`;
-            if (document.getElementById('distance').value) {
-                calculate();
-            }
+        function toggleMode() {
+            isDestressMode = !isDestressMode;
+            document.querySelector('.toggle-btn').innerText = isDestressMode ? 'Switch to Growth & Force' : 'Switch to Destress';
+            document.getElementById('length').placeholder = isDestressMode ? 'Length of free rail (m)' : 'Length of original rail (m)';
+            document.getElementById('temp').placeholder = isDestressMode ? 'Average temp (below 37)' : 'Change in temperature (°C)';
+            document.getElementById('radius').placeholder = isDestressMode ? 'Curve radius R (m) for rollers (optional)' : 'Curve radius R (m) (optional, unused in this mode)';
+            document.getElementById('results').style.display = 'none';
         }
         function calculate() {
-            const distanceStr = document.getElementById('distance').value;
-            const depthStr = document.getElementById('depth').value;
-            const shoulderStr = document.getElementById('shoulder').value;
-            const distance = parseFloat(distanceStr);
-            const depth_m = parseFloat(depthStr) / 1000;
-            const shoulder_m = parseFloat(shoulderStr) / 1000;
-            if (isNaN(distance) || isNaN(depth_m) || isNaN(shoulder_m)) return;
-            const spacing = sleeperSpacingOptions[selectedSleeperSpacingIndex];
-            const total_width_m = 2.6 + 2 * shoulder_m; // Sleeper length 2600mm = 2.6m
-            const cross_area = total_width_m * depth_m;
-            const total_vol = distance * cross_area;
-            const sleeper_vol_single = 2.6 * 0.3 * 0.3; // Length x width x height in m (2600mm x 300mm x 300mm)
-            const num_sleepers = distance / spacing;
-            const total_sleeper_vol = num_sleepers * sleeper_vol_single;
-            const net_vol = total_vol - total_sleeper_vol;
-            // Display results
-            document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters <img src="ballast.png" class="icon" alt="ballast">`; // Replace src with actual
+            const L0 = parseFloat(document.getElementById('length').value);
+            const TR_delta = parseFloat(document.getElementById('temp').value);
+            const R = parseFloat(document.getElementById('radius').value) || Infinity; // Default tangent
+            if (isNaN(L0) || isNaN(TR_delta)) return;
+            let output = '';
+            if (isDestressMode) {
+                const deltaT = 37 - TR_delta;
+                const e = L0 * 11.5 * deltaT / 1000;
+                const F = 68 * 0.031111 * deltaT;
+                const sleepers = Math.floor(L0 * 1000 / 600);
+                let rollers = 0;
+                if (R >= 800) {
+                    rollers = Math.floor(sleepers / 12) * 4;
+                } else if (R >= 500 && R < 800) {
+                    rollers = Math.floor(sleepers / 5) * 4;
+                }
+                const dividedLength = L0 / 4;
+                let accumulated = 0;
+                let quarterPoints = 'ITT';
+                for (let i = 0; i < 3; i++) {
+                    accumulated += dividedLength;
+                    quarterPoints += '---' + Math.round(accumulated);
+                }
+                quarterPoints += '---' + Math.round(L0);
+                output = `(37°C Stress Free Temperature)<br>Rail extension required: ${e.toFixed(2)} mm<br>Pulling force required: ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers based on pilbara standards.<br>Rollers required Tangent to R ≥ 800 (Every 12 Sleepers): ${rollers}<br>Rollers required 800 > R ≥ 500 (Every 5 Sleepers): ${rollers}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
+            } else {
+                const delta_L = L0 * 0.0000115 * TR_delta * 1000;
+                const P = Math.abs(TR_delta) * 2.12;
+                output = `Change in length = ${delta_L.toFixed(2)} mm<br>Longitudinal Force = ${P.toFixed(2)} tons`;
+            }
+            document.getElementById('output').innerHTML = output;
             document.getElementById('results').style.display = 'block';
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
