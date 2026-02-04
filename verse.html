@@ -1,97 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rail Calculator - VERSE</title>
-  <link rel="stylesheet" href="style.css"> <!-- Assume shared CSS for responsive design, flex/grid, transitions, media queries -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERSE SFT Calculator</title>
+    <style>
+        :root {
+            --bg: #f0f0f0;
+            --card: rgba(255, 255, 255, 0.8);
+            --accent: blue;
+            --text: #333;
+            --muted: #666;
+            --border: #ccc;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-y: auto;
+            color: var(--text);
+        }
+        .background-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('newrail.png'); /* Replace with actual image URL or base64 */
+            background-size: cover;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .info-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--accent);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .info-btn:hover {
+            color: darkblue;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            min-width: 200px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+        .calc-btn, .copy-btn, .toggle-btn {
+            background-color: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .calc-btn:hover, .copy-btn:hover, .toggle-btn:hover {
+            background-color: darkblue;
+            transform: translateY(-2px);
+        }
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .results {
+            display: none;
+        }
+        .result-item {
+            margin-bottom: 10px;
+        }
+        .bottom-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover {
+            color: black;
+            cursor: pointer;
+        }
+        /* Nav styles */
+        nav {
+            background: #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: var(--accent);
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: darkblue;
+        }
+        nav a.active {
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+            }
+            input[type="text"] {
+                width: 100%;
+            }
+            .bottom-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            nav {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-  <nav>
-    <ul>
-      <li><a href="index.html">Materials</a></li>
-      <li><a href="ballast.html">Ballast</a></li>
-      <li><a href="curve.html">Curve Elevation</a></li>
-      <li><a href="destress.html">Destress</a></li>
-      <li><a href="verse.html">VERSE</a></li>
-    </ul>
-  </nav>
-  <main>
-    <h1>VERSE SFT Calculator</h1>
-    <button id="infoBtn">ℹ️</button>
+    <div class="background-img"></div>
+    <div class="container">
+        <nav>
+            <a href="index.html">Materials</a>
+            <a href="ballast.html">Ballast</a>
+            <a href="curve.html">Curve Elevation</a>
+            <a href="destress.html">Destress</a>
+            <a href="verse.html" class="active">VERSE</a>
+        </nav>
+        <div class="header">
+            <button class="info-btn" onclick="showInfo()">ℹ️</button>
+        </div>
+        <div class="input-row">
+            <input type="text" id="length" placeholder="Unclipped length (m)" value="33">
+            <input type="text" id="sag" placeholder="Measured sag (mm)">
+            <input type="text" id="temp" placeholder="Rail temp TR (°C)">
+            <button class="calc-btn" onclick="calculate()">Calculate</button>
+        </div>
+        <div class="results" id="results">
+            <div class="result-item" id="output"></div>
+        </div>
+        <div class="bottom-row">
+            <button class="copy-btn" onclick="copyResults()" id="copyBtn">Copy</button>
+        </div>
+    </div>
+    <!-- Info Modal -->
     <div id="infoModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <p>Estimates Stress Free Temperature (SFT) using VERSE method approximation.</p>
-        <p>Inputs: Rail type (default 68kg/m), lift (mm, e.g., 50), vertical force (tons, metric), rail temp TR (°C).</p>
-        <p>Formulas:</p>
-        <p>F0 = 48 * E * I / L³ * δ (no-load force for deflection δ)</p>
-        <p>Pcr = π² * E * I / L²</p>
-        <p>P = Pcr * (1 - F / F0) (axial load, positive compression)</p>
-        <p>SFT = TR - P / (A * E * α) (handles tension/compression sign)</p>
-        <p>Constants: E=210 GPa, α=1.15e-5 /°C, for 68kg/m: A=0.00868 m², I=3.89e-5 m⁴, L=33 m (unclipped length).</p>
-        <p>Deviation = SFT - 37°C (DSFT).</p>
-        <p>Note: Approximation using beam theory; actual VERSE uses proprietary curve fitting. For tension only (TR < SFT).</p>
-      </div>
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('infoModal')">&times;</span>
+            <h2>Info</h2>
+            <p>Estimates Stress Free Temperature (SFT) using a rough approximation of the VERSE method by measuring rail sag under self-weight.<br>Inputs: Unclipped length L (m, default 33 for &gt;60kg rails), measured sag δ (mm, downward deflection at center), rail temp TR (°C).<br>Formulas:<br>w = m * g (self-weight load N/m, m=68kg/m, g=9.81)<br>δ0 = 5 w L⁴ / (384 E I) (no-axial deflection m)<br>Pcr = π² E I / L² (Euler buckling N)<br>k = δ0 / δ (δ in m)<br>If δ &gt; δ0 (compression): P = Pcr (1 - k) (compression +)<br>If δ &lt; δ0 (tension): P = -Pcr (k - 1) (tension -)<br>ΔT = P / (A E α)<br>SFT = TR - ΔT<br>Deviation = SFT - 37°C (DSFT).<br>Constants: E=210 GPa, α=1.15e-5 /°C, for 68kg/m: A=0.00868 m², I=3.89e-5 m⁴.<br>Note: Rough beam theory approximation for manual sag measurement; actual VERSE uses force for fixed lift and proprietary calibration. For tension/compression; assumes simply supported, self-weight only.</p>
+        </div>
     </div>
-    <div class="inputs">
-      <label for="railType">Rail Type:</label>
-      <select id="railType">
-        <option value="68">68kg/m</option>
-      </select>
-      <label for="lift">Lift (mm):</label>
-      <input type="number" id="lift" value="50">
-      <label for="force">Force (tons):</label>
-      <input type="number" id="force" value="70" step="0.1">
-      <label for="tr">Rail Temp TR (°C):</label>
-      <input type="number" id="tr" value="20">
-      <button id="calculateBtn">Calculate</button>
-    </div>
-    <div id="results"></div>
-    <button id="copyBtn">Copy Results</button>
-  </main>
-  <script>
-    const calculateBtn = document.getElementById('calculateBtn');
-    const resultsDiv = document.getElementById('results');
-    const copyBtn = document.getElementById('copyBtn');
-    const infoBtn = document.getElementById('infoBtn');
-    const modal = document.getElementById('infoModal');
-    const close = document.getElementsByClassName('close')[0];
-
-    infoBtn.onclick = () => modal.style.display = 'block';
-    close.onclick = () => modal.style.display = 'none';
-    window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
-
-    calculateBtn.addEventListener('click', () => {
-      const railType = document.getElementById('railType').value;
-      const lift = parseFloat(document.getElementById('lift').value) / 1000; // to m
-      const force = parseFloat(document.getElementById('force').value) * 1000 * 9.81; // tons to N
-      const tr = parseFloat(document.getElementById('tr').value);
-      const DSFT = 37;
-
-      const E = 210e9; // Pa
-      const alpha = 1.15e-5; // /°C
-      let A = 0.00868; // m²
-      let I = 3.89e-5; // m⁴ (estimated 3890 cm⁴)
-      let L = 33; // m for 68kg/m
-
-      const Pcr = Math.PI ** 2 * E * I / (L ** 2);
-      const F0 = 48 * E * I / (L ** 3) * lift;
-      const P = Pcr * (1 - force / F0);
-      const deltaT = -P / (A * E * alpha); // sign flip for correct ΔT
-      const sft = tr + deltaT;
-      const deviation = sft - DSFT;
-
-      resultsDiv.innerHTML = `
-        Estimated SFT: ${sft.toFixed(1)} °C<br>
-        Deviation from DSFT: ${deviation.toFixed(1)} °C
-      `;
-    });
-
-    copyBtn.addEventListener('click', () => {
-      const text = resultsDiv.innerText;
-      navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
-    });
-  </script>
+    <script>
+        let resultsCopied = false;
+        function showInfo() {
+            document.getElementById('infoModal').style.display = 'block';
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        function calculate() {
+            const L = parseFloat(document.getElementById('length').value);
+            const sag_mm = parseFloat(document.getElementById('sag').value);
+            const TR = parseFloat(document.getElementById('temp').value);
+            if (isNaN(L) || isNaN(sag_mm) || isNaN(TR)) return;
+            const delta = sag_mm / 1000; // m
+            const m = 68; // kg/m
+            const g = 9.81; // m/s²
+            const w = m * g; // N/m
+            const E = 210e9; // Pa
+            const I = 3.89e-5; // m⁴
+            const A = 0.00868; // m²
+            const alpha = 1.15e-5; // /°C
+            const delta0 = (5 * w * Math.pow(L, 4)) / (384 * E * I); // m
+            const Pcr = Math.PI * Math.PI * E * I / (L * L); // N
+            const k = delta0 / delta;
+            let P = 0;
+            if (delta > delta0) { // compression
+                P = Pcr * (1 - k);
+            } else { // tension
+                P = -Pcr * (k - 1);
+            }
+            const deltaT = P / (A * E * alpha);
+            const SFT = TR - deltaT;
+            const DSFT = 37;
+            const deviation = SFT - DSFT;
+            const output = `Estimated SFT: ${SFT.toFixed(1)} °C<br>Deviation from DSFT: ${deviation.toFixed(1)} °C`;
+            document.getElementById('output').innerHTML = output;
+            document.getElementById('results').style.display = 'block';
+            resultsCopied = false;
+            document.getElementById('copyBtn').classList.remove('disabled');
+        }
+        function copyResults() {
+            if (resultsCopied) return;
+            const resultsDiv = document.getElementById('results');
+            let text = '';
+            for (let child of resultsDiv.children) {
+                text += child.innerText + '\n';
+            }
+            navigator.clipboard.writeText(text);
+            resultsCopied = true;
+            document.getElementById('copyBtn').classList.add('disabled');
+        }
+    </script>
 </body>
 </html>
