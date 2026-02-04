@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rail Calculator - VERSE</title>
+  <link rel="stylesheet" href="style.css"> <!-- Assume shared CSS for responsive design, flex/grid, transitions, media queries -->
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Materials</a></li>
+      <li><a href="ballast.html">Ballast</a></li>
+      <li><a href="curve.html">Curve Elevation</a></li>
+      <li><a href="destress.html">Destress</a></li>
+      <li><a href="verse.html">VERSE</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h1>VERSE SFT Calculator</h1>
+    <button id="infoBtn">ℹ️</button>
+    <div id="infoModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>Estimates Stress Free Temperature (SFT) using VERSE method approximation.</p>
+        <p>Inputs: Rail type (default 68kg/m), lift (mm, e.g., 50), vertical force (tons, metric), rail temp TR (°C).</p>
+        <p>Formulas:</p>
+        <p>F0 = 48 * E * I / L³ * δ (no-load force for deflection δ)</p>
+        <p>Pcr = π² * E * I / L²</p>
+        <p>P = Pcr * (1 - F / F0) (axial load, positive compression)</p>
+        <p>SFT = TR - P / (A * E * α) (handles tension/compression sign)</p>
+        <p>Constants: E=210 GPa, α=1.15e-5 /°C, for 68kg/m: A=0.00868 m², I=3.89e-5 m⁴, L=33 m (unclipped length).</p>
+        <p>Deviation = SFT - 37°C (DSFT).</p>
+        <p>Note: Approximation using beam theory; actual VERSE uses proprietary curve fitting. For tension only (TR < SFT).</p>
+      </div>
+    </div>
+    <div class="inputs">
+      <label for="railType">Rail Type:</label>
+      <select id="railType">
+        <option value="68">68kg/m</option>
+      </select>
+      <label for="lift">Lift (mm):</label>
+      <input type="number" id="lift" value="50">
+      <label for="force">Force (tons):</label>
+      <input type="number" id="force" value="70" step="0.1">
+      <label for="tr">Rail Temp TR (°C):</label>
+      <input type="number" id="tr" value="20">
+      <button id="calculateBtn">Calculate</button>
+    </div>
+    <div id="results"></div>
+    <button id="copyBtn">Copy Results</button>
+  </main>
+  <script>
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultsDiv = document.getElementById('results');
+    const copyBtn = document.getElementById('copyBtn');
+    const infoBtn = document.getElementById('infoBtn');
+    const modal = document.getElementById('infoModal');
+    const close = document.getElementsByClassName('close')[0];
+
+    infoBtn.onclick = () => modal.style.display = 'block';
+    close.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
+
+    calculateBtn.addEventListener('click', () => {
+      const railType = document.getElementById('railType').value;
+      const lift = parseFloat(document.getElementById('lift').value) / 1000; // to m
+      const force = parseFloat(document.getElementById('force').value) * 1000 * 9.81; // tons to N
+      const tr = parseFloat(document.getElementById('tr').value);
+      const DSFT = 37;
+
+      const E = 210e9; // Pa
+      const alpha = 1.15e-5; // /°C
+      let A = 0.00868; // m²
+      let I = 3.89e-5; // m⁴ (estimated 3890 cm⁴)
+      let L = 33; // m for 68kg/m
+
+      const Pcr = Math.PI ** 2 * E * I / (L ** 2);
+      const F0 = 48 * E * I / (L ** 3) * lift;
+      const P = Pcr * (1 - force / F0);
+      const deltaT = -P / (A * E * alpha); // sign flip for correct ΔT
+      const sft = tr + deltaT;
+      const deviation = sft - DSFT;
+
+      resultsDiv.innerHTML = `
+        Estimated SFT: ${sft.toFixed(1)} °C<br>
+        Deviation from DSFT: ${deviation.toFixed(1)} °C
+      `;
+    });
+
+    copyBtn.addEventListener('click', () => {
+      const text = resultsDiv.innerText;
+      navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
+    });
+  </script>
+</body>
+</html>
