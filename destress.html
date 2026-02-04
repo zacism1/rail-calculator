@@ -247,7 +247,7 @@
                     quarterPoints += '---' + Math.round(accumulated);
                 }
                 quarterPoints += '---' + Math.round(L0);
-                output = `(37°C Stress Free Temperature)<br>Rail extension required: ${e.toFixed(2)} mm<br>Pulling force required: ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers based on standards:<br>Tangent to R ≥ 800 (every 12 sleepers): ${rollers12}<br>800 > R ≥ 500 (every 5 sleepers): ${rollers5}<br>500 > R ≥ 400 (every 3 sleepers): ${rollers3}<br>R < 400 (every 2 sleepers): ${rollers2}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
+                output = `(37°C Stress Free Temperature)<br>Rail extension required (also weld gap for tension welding): ${e.toFixed(2)} mm<br>Pulling force required (for destress or weld tensioning): ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers based on standards:<br>Tangent to R ≥ 800 (every 12 sleepers): ${rollers12}<br>800 > R ≥ 500 (every 5 sleepers): ${rollers5}<br>500 > R ≥ 400 (every 3 sleepers): ${rollers3}<br>R < 400 (every 2 sleepers): ${rollers2}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
             } else {
                 const delta_L = L0 * 0.0000115 * TR_delta * 1000;
                 const P = Math.abs(TR_delta) * 2.12;
