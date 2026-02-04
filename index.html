@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rail Materials Calculator</title>
     <style>
+        :root {
+            --bg: #f0f0f0;
+            --card: rgba(255, 255, 255, 0.8);
+            --accent: blue;
+            --text: #333;
+            --muted: #666;
+            --border: #ccc;
+        }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: var(--bg);
             margin: 0;
             padding: 20px;
             position: relative;
             overflow-y: auto;
+            color: var(--text);
         }
         .background-img {
             position: absolute;
@@ -27,9 +36,10 @@
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.8);
+            background: var(--card);
             padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .header {
             display: flex;
@@ -41,29 +51,44 @@
             background: none;
             border: none;
             font-size: 22px;
-            color: blue;
+            color: var(--accent);
             cursor: pointer;
+            transition: color 0.3s;
+        }
+        .info-btn:hover {
+            color: darkblue;
         }
         .input-row {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         input[type="text"] {
             flex: 1;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border);
             border-radius: 5px;
-            margin-right: 10px;
+            min-width: 200px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--accent);
         }
         .calc-btn, .copy-btn, .spacing-btn {
-            background-color: blue;
+            background-color: var(--accent);
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            margin-left: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .calc-btn:hover, .copy-btn:hover, .spacing-btn:hover {
+            background-color: darkblue;
+            transform: translateY(-2px);
         }
         .disabled {
             opacity: 0.5;
@@ -71,9 +96,15 @@
         }
         .results {
             display: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
         }
         .result-item {
             margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
         }
         .icon {
             width: 25px;
@@ -84,6 +115,7 @@
             display: flex;
             justify-content: flex-end;
             margin-top: 20px;
+            gap: 10px;
         }
         /* Modal styles */
         .modal {
@@ -121,14 +153,36 @@
             background: #ddd;
             padding: 10px;
             margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         nav a {
             margin-right: 15px;
             text-decoration: none;
-            color: blue;
+            color: var(--accent);
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: darkblue;
         }
         nav a.active {
             font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+            }
+            input[type="text"] {
+                width: 100%;
+            }
+            .bottom-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            nav {
+                justify-content: center;
+            }
         }
     </style>
 </head>
