@@ -190,7 +190,6 @@
         <div class="input-row">
             <input type="text" id="length" placeholder="Length of free rail (m)">
             <input type="text" id="temp" placeholder="Average temp (below 37)">
-            <input type="text" id="radius" placeholder="Curve radius R (m) for rollers (optional)">
             <button class="calc-btn" onclick="calculate()">Calculate</button>
         </div>
         <div class="results" id="results">
@@ -224,13 +223,11 @@
             document.querySelector('.toggle-btn').innerText = isDestressMode ? 'Switch to Growth & Force' : 'Switch to Destress';
             document.getElementById('length').placeholder = isDestressMode ? 'Length of free rail (m)' : 'Length of original rail (m)';
             document.getElementById('temp').placeholder = isDestressMode ? 'Average temp (below 37)' : 'Change in temperature (°C)';
-            document.getElementById('radius').style.display = isDestressMode ? 'block' : 'none';
             document.getElementById('results').style.display = 'none';
         }
         function calculate() {
             const L0 = parseFloat(document.getElementById('length').value);
             const TR_delta = parseFloat(document.getElementById('temp').value);
-            const R = parseFloat(document.getElementById('radius').value) || Infinity; // Default tangent
             if (isNaN(L0) || isNaN(TR_delta)) return;
             let output = '';
             if (isDestressMode) {
@@ -238,21 +235,10 @@
                 const e = L0 * 11.5 * deltaT / 1000;
                 const F = 68 * 0.031111 * deltaT;
                 const sleepers = Math.floor(L0 * 1000 / 600);
-                let rollerSpacing = '';
-                let rollers = 0;
-                if (R >= 800) {
-                    rollerSpacing = 'every 12 sleepers';
-                    rollers = Math.floor(sleepers / 12) * 4;
-                } else if (R >= 500 && R < 800) {
-                    rollerSpacing = 'every 5 sleepers';
-                    rollers = Math.floor(sleepers / 5) * 4;
-                } else if (R >= 400 && R < 500) {
-                    rollerSpacing = 'every 3 sleepers';
-                    rollers = Math.floor(sleepers / 3) * 4;
-                } else if (R < 400) {
-                    rollerSpacing = 'every 2 sleepers';
-                    rollers = Math.floor(sleepers / 2) * 4;
-                }
+                const rollers12 = Math.floor(sleepers / 12) * 4;
+                const rollers5 = Math.floor(sleepers / 5) * 4;
+                const rollers3 = Math.floor(sleepers / 3) * 4;
+                const rollers2 = Math.floor(sleepers / 2) * 4;
                 const dividedLength = L0 / 4;
                 let accumulated = 0;
                 let quarterPoints = 'ITT';
@@ -261,7 +247,7 @@
                     quarterPoints += '---' + Math.round(accumulated);
                 }
                 quarterPoints += '---' + Math.round(L0);
-                output = `(37°C Stress Free Temperature)<br>Rail extension required: ${e.toFixed(2)} mm<br>Pulling force required: ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers required (${rollerSpacing}): ${rollers}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
+                output = `(37°C Stress Free Temperature)<br>Rail extension required: ${e.toFixed(2)} mm<br>Pulling force required: ${F.toFixed(2)} tons<br>Sleepers (600mm): ${sleepers}<br>Rollers based on standards:<br>Tangent to R ≥ 800 (every 12 sleepers): ${rollers12}<br>800 > R ≥ 500 (every 5 sleepers): ${rollers5}<br>500 > R ≥ 400 (every 3 sleepers): ${rollers3}<br>R < 400 (every 2 sleepers): ${rollers2}<br>Quarter points:(OTT -40m)<br>${quarterPoints}`;
             } else {
                 const delta_L = L0 * 0.0000115 * TR_delta * 1000;
                 const P = Math.abs(TR_delta) * 2.12;
