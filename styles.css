@@ -1,31 +1,224 @@
-:root{
-  --bg:#0f1724;
-  --card:#0b1220;
-  --accent:#4fd1c5;
-  --muted:#94a3b8;
-  --glass: rgba(255,255,255,0.03);
+:root {
+    --bg: linear-gradient(180deg, #f0f0f0, #e0e0e0); /* Subtle gradient for cool depth */
+    --card: rgba(255, 255, 255, 0.9); /* Glassmorphism for modern look */
+    --accent: #e87722; /* BHP orange from PDFs */
+    --text: #333;
+    --muted: #666;
+    --border: #ccc;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadows */
 }
-*{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Helvetica,Arial,sans-serif}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#071122);color:#e6eef6}
-.topbar{display:flex;align-items:center;gap:24px;padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
-.logo{font-size:18px;margin:0;font-weight:600}
-.tabs{margin-left:auto;display:flex;gap:8px}
-.tab{background:transparent;border:0;padding:8px 14px;border-radius:8px;color:var(--muted);cursor:pointer}
-.tab.active{background:linear-gradient(90deg,rgba(79,209,197,0.12),rgba(79,209,197,0.04));color:var(--accent);box-shadow:0 6px 18px rgba(13,23,34,0.6)}
-.container{max-width:980px;margin:28px auto;padding:0 20px}
-.panel{display:none}
-.panel.active{display:block}
-.card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(6,8,12,0.6)}
-h2{margin-top:0}
-label{display:block;margin:12px 0;color:var(--muted);font-size:14px}
-input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:inherit}
-.actions{display:flex;gap:8px;margin-top:14px}
-button{padding:10px 14px;border-radius:8px;border:0;background:var(--accent);color:#042027;cursor:pointer}
-button.muted{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
-.output{margin-top:14px;padding:12px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);color:var(--muted)}
-@media(min-width:720px){
-  .card{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start}
-  label{margin:0}
-  .actions{grid-column:1/4;margin-top:12px}
-  .output{grid-column:1/4}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    position: relative;
+    overflow-y: auto;
+    min-height: 100vh;
+}
+
+.background-img {
+    position: fixed; /* Changed to fixed for parallax-like effect */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('newrail.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3; /* Slightly more visible for cool vibe */
+    z-index: -1;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: var(--card);
+    padding: 24px;
+    border-radius: 16px; /* Curved edges */
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease; /* Subtle hover lift */
+}
+
+.container:hover {
+    transform: translateY(-4px);
+}
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.info-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--accent);
+    cursor: pointer;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.info-btn:hover {
+    color: #c65f0e; /* Darker orange */
+    transform: scale(1.1);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 200px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(232, 119, 34, 0.3); /* Orange glow */
+}
+
+.calc-btn, .copy-btn, .toggle-btn, .spacing-btn {
+    background: linear-gradient(90deg, var(--accent), #c65f0e); /* Gradient for cool effect */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 24px; /* Highly curved for pill shape */
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.calc-btn:hover, .copy-btn:hover, .toggle-btn:hover, .spacing-btn:hover {
+    background: linear-gradient(90deg, #c65f0e, var(--accent));
+    transform: translateY(-3px);
+}
+
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.results {
+    display: none;
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: opacity 0.5s ease; /* Fade-in */
+}
+
+.results.show { /* Add .show class in JS if needed for animation */
+    display: block;
+    opacity: 1;
+}
+
+.result-item {
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.bottom-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    gap: 12px;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* Darker overlay */
+    transition: opacity 0.3s;
+}
+
+.modal-content {
+    background: white;
+    margin: 15% auto;
+    padding: 24px;
+    border: 1px solid var(--border);
+    width: 80%;
+    max-width: 600px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.close {
+    color: var(--muted);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: var(--text);
+}
+
+/* Nav styles */
+nav {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: var(--shadow);
+}
+
+.nav-btn { /* Updated class for menu items */
+    padding: 10px 20px;
+    background: linear-gradient(90deg, var(--accent), #c65f0e);
+    color: white;
+    text-decoration: none;
+    border-radius: 24px; /* Curved pill shape */
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn:hover {
+    background: linear-gradient(90deg, #c65f0e, var(--accent));
+    transform: translateY(-2px);
+}
+
+.nav-btn.active {
+    background: linear-gradient(90deg, #b54d00, var(--accent)); /* Slightly darker for active */
+    font-weight: bold;
+}
+
+/* Media query for responsiveness */
+@media (max-width: 600px) {
+    .input-row, .bottom-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    nav {
+        justify-content: center;
+    }
 }
