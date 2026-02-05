@@ -4,154 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ballast Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-            position: relative;
-            overflow-y: auto;
-        }
-        .background-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('newrail.png'); /* Replace with actual image URL or base64 */
-            background-size: cover;
-            opacity: 0.5;
-            z-index: -1;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .info-btn {
-            background: none;
-            border: none;
-            font-size: 22px;
-            color: blue;
-            cursor: pointer;
-        }
-        .input-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            min-width: 200px;
-        }
-        .calc-btn, .copy-btn, .spacing-btn {
-            background-color: blue;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-left: 10px;
-            margin-bottom: 10px;
-        }
-        .disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .results {
-            display: none;
-        }
-        .result-item {
-            margin-bottom: 10px;
-        }
-        .icon {
-            width: 25px;
-            height: 25px;
-            margin-left: 10px;
-        }
-        .bottom-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover {
-            color: black;
-            cursor: pointer;
-        }
-        /* Nav styles */
-        nav {
-            background: #ddd;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        nav a {
-            margin-right: 15px;
-            text-decoration: none;
-            color: blue;
-        }
-        nav a.active {
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="background-img"></div>
     <div class="container">
         <nav>
-            <a href="index.html">Materials</a>
-            <a href="ballast.html" class="active">Ballast</a>
-            <a href="curve.html">Curve Elevation</a>
-            <a href="destress.html">Destress</a>
+            <a href="index.html" class="nav-btn">Materials</a>
+            <a href="ballast.html" class="nav-btn active">Ballast</a>
+            <a href="curve.html" class="nav-btn">Curve Elevation</a>
+            <a href="destress.html" class="nav-btn">Destress</a>
+            <a href="verse.html" class="nav-btn">VERSE</a>
         </nav>
         <div class="header">
             <button class="info-btn" onclick="showInfo()">ℹ️</button>
         </div>
         <div class="input-row">
             <input type="text" id="distance" placeholder="Distance of track (in meters)">
-            <input type="text" id="depth" placeholder="Ballast depth (mm) e.g. 300">
-            <input type="text" id="shoulder" placeholder="Ballast shoulder width (mm) e.g. 300">
+            <input type="text" id="depth" placeholder="Ballast depth (mm)">
+            <input type="text" id="shoulder" placeholder="Ballast shoulder (mm)">
             <button class="calc-btn" onclick="calculate()">Calculate</button>
         </div>
         <div class="results" id="results">
@@ -167,7 +38,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('infoModal')">&times;</span>
             <h2>Info</h2>
-            <p>Calculation models the full ballast prism as a trapezoid from formation (bottom) up to top of sleeper level, with flat top width = sleeper length + 2x shoulder width, then sloping outward at 1:1.5 (horizontal:vertical) over total height (ballast depth under sleeper + sleeper height). Sleeper volume is subtracted as they displace ballast in cribs/under-rail areas. Default spacing is 600mm. Press the 600mm button to toggle between spacing options: 600, 650, 670, 675, 700mm. Sleeper dimensions: 2.55m x 0.24m x 0.24m.</p>
+            <p>The model is a trapezoidal prism with 1:1.5 slope (as per CoP). Top width = sleeper length (2.55m) + 2 * shoulder. Bottom width = top + 2 * 1.5 * height. Height = depth + sleeper height (0.24m). Subtract total sleeper volume (each 2.55x0.24x0.24m). Use spacing toggle for number of sleepers. Density 1.55 t/m³ compacted. Assumes no crib ballast deduction or other losses.</p>
         </div>
     </div>
     <script>
@@ -215,6 +86,7 @@
             // Display results
             document.getElementById('ballast').innerHTML = `*Ballast Volume (Roughly): ${net_vol.toFixed(2)} cubic meters | Weight (approx): ${weight.toFixed(2)} tonnes (at 1.55 t/m³)`;
             document.getElementById('results').style.display = 'block';
+            document.getElementById('results').classList.add('show');
             resultsCopied = false;
             document.getElementById('copyBtn').classList.remove('disabled');
         }
