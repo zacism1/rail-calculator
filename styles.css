@@ -29,11 +29,21 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('newrail.png');
+    background-image: url('turnout.jpeg');
     background-size: cover;
     background-position: center;
     opacity: 0.3; /* Slightly more visible for cool vibe */
     z-index: -1;
+    animation: subtle-pan-zoom 20s ease-in-out infinite alternate; /* Subtle pan/zoom animation */
+}
+
+@keyframes subtle-pan-zoom {
+    0% {
+        transform: scale(1) translate(0, 0);
+    }
+    100% {
+        transform: scale(1.05) translate(-2%, -2%); /* Slight zoom out and pan */
+    }
 }
 
 .container {
@@ -125,7 +135,7 @@ input[type="text"]:focus {
     transition: opacity 0.5s ease; /* Fade-in */
 }
 
-.results.show { /* Add .show class in JS if needed for animation */
+.results.show {
     display: block;
     opacity: 1;
 }
@@ -192,7 +202,7 @@ nav {
     box-shadow: var(--shadow);
 }
 
-.nav-btn { /* Updated class for menu items */
+.nav-btn {
     padding: 10px 20px;
     background: linear-gradient(90deg, var(--accent), #c65f0e);
     color: white;
